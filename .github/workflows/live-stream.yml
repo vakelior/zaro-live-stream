@@ -1,0 +1,32 @@
+name: 🚵 Zaro Live Stream
+
+on:
+  workflow_dispatch:  # Manual trigger from GitHub UI
+  schedule:
+    # Every 6 hours (max runtime per job)
+    - cron: "0 */6 * *"
+
+jobs:
+  stream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours max
+    
+    steps:
+      - name: ⫈️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Install ffmpeg & yt-dlp
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          pip install yt-dlp
+          ffmpeg -version | head -1
+          yt-dlp --version
+
+      - name: 🚺 Start Live Stream
+        env:
+          YOUTUBE_URL: ${ {secrets.YOUTUBE_URL }}
+          RESTREAM_KEY: ${ {secrets.RESTREAM_KEY }}
+        run: |
+          chmod +x stream.sh
+          bash stream.sh "YOUTUBE_URL" "$ELEAM_KEY" 21600 true
